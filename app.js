@@ -14,16 +14,16 @@ connectToMongo();
 const app = express();
 app.use(bodyParser.json({ limit: "30mb" })); // Set the limit as needed
 app.use(express.json());
-app.use(cors());
-/* app.use(
+//app.use(cors());
+app.use(
   cors({
     origin: "https://digitalhr.netlify.app",
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true, // If you need to handle cookies or authentication headers
   })
-); */
+);
 
-/* app.use((req, res, next) => {
+app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://digitalhr.netlify.app");
   res.header(
     "Access-Control-Allow-Headers",
@@ -31,7 +31,7 @@ app.use(cors());
   );
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
-}); */
+});
 const port = process.env.PORT || 5001;
 
 AWS.config.update({
