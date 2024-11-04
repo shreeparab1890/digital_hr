@@ -82,8 +82,8 @@ router.put(
   [
     body("pan_card", "Enter a valid pan card").notEmpty(),
     body("adhar_card", "Enter a valid adhar card").notEmpty(),
-    body("gst_no", "Enter a valid gst number").notEmpty(),
-    body("cin_no", "Enter a valid cin number").notEmpty(),
+    body("gst_no"),
+    body("cin_no"),
     body("incorporation_type", "Enter a valid incorporation type").notEmpty(),
     body("industry_type", "Enter a valid industry type").notEmpty(),
     body("employee_count_range", "Enter a valid employee count range"),
@@ -138,8 +138,8 @@ router.put(
 
     body("pan_card", "Enter a valid PAN card number").notEmpty(),
     body("adhar_card", "Enter a valid Aadhar card number").notEmpty(),
-    body("gst_no", "Enter a valid GST number").notEmpty(),
-    body("cin_no", "Enter a valid CIN number").notEmpty(),
+    body("gst_no"),
+    body("cin_no"),
     body("industry_type", "Enter a valid industry type").notEmpty(),
     body(
       "employee_count_range",
