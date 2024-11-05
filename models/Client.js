@@ -61,7 +61,6 @@ const ClientSchema = new Schema({
     type: String,
     required: true,
   },
-
   pan_card: {
     type: String,
   },
@@ -69,12 +68,11 @@ const ClientSchema = new Schema({
     type: Number,
   },
   gst_no: {
-    type: Number,
+    type: String,
   },
   cin_no: {
-    type: Number,
+    type: String,
   },
-
   industry_type: {
     type: String,
   },

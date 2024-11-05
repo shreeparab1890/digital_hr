@@ -31,19 +31,23 @@ router.post(
   validateToken,
   [
     body("user_id"),
-    body("name", "Enter a valid name").isLength({ min: 3 }),
-    body("email", "Enter a Valid Email").isEmail(),
-    body("whatsapp_no", "Enter a Valid Whatsapp Number").notEmpty().isNumeric(),
-    body("password", "Password must have atlest 5 character").notEmpty(),
-    body("adhar_card", "Enter a valid adhar_card").notEmpty(),
-    body("city", "Enter a Valid city"),
-    body("state", "Enter a Valid state"),
-    body("country", "Enter a Valid country"),
-    body("address", "Enter a Valid address"),
-    body("pin_code", "Enter a Valid pin_code").isNumeric(),
-    body("roleType", "Select a valid role id").notEmpty(),
-    body("team", "Select a valid team id").notEmpty(),
-    body("department", "Select a valid department id").notEmpty(),
+    body("name", "Enter a Valid Name!").isLength({ min: 3 }),
+    body("email", "Enter a Valid Email!").isEmail(),
+    body("whatsapp_no", "Enter a Valid Whatsapp Number!")
+      .isLength({ min: 10 })
+      .isNumeric(),
+    body("password", "Password must have atlest 5 character!").isLength({
+      min: 5,
+    }),
+    body("adhar_card", "Enter a valid Adhar Card!").isLength({ min: 12 }),
+    body("city", "Enter a Valid City!"),
+    body("state", "Enter a Valid State!"),
+    body("country", "Enter a Valid Country!"),
+    body("address", "Enter a Valid Address!"),
+    body("pin_code", "Enter a Valid Pincode!").isNumeric(),
+    body("roleType", "Select Valid Role!").notEmpty(),
+    body("team", "Select Valid Team!").notEmpty(),
+    body("department", "Select Valid Department!").notEmpty(),
   ],
   createClient
 );
@@ -81,22 +85,21 @@ router.put(
   validateToken,
   [
     body("pan_card", "Enter a valid pan card").notEmpty(),
-    body("adhar_card", "Enter a valid adhar card").notEmpty(),
+    body("adhar_card"),
     body("gst_no"),
     body("cin_no"),
     body("incorporation_type", "Enter a valid incorporation type").notEmpty(),
     body("industry_type", "Enter a valid industry type").notEmpty(),
-    body("employee_count_range", "Enter a valid employee count range"),
+    body("employee_count_range"),
     body("contact_person.name", "Enter a valid contact person name").notEmpty(),
-    body("contact_person.email", "Enter a valid contact person email")
-      .isEmail()
-      .notEmpty(),
+    body(
+      "contact_person.email",
+      "Enter a valid contact person email"
+    ).isEmail(),
     body(
       "contact_person.contact_no",
       "Enter a valid contact person contact number"
-    )
-      .notEmpty()
-      .isNumeric(),
+    ).notEmpty(),
     body(
       "contact_person.designation",
       "Enter a valid contact person designation"

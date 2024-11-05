@@ -49,18 +49,30 @@ const createClient = async (req, res) => {
 
   if (!user) {
     logger.error(
-      `${ip}: API /api/v1/user/add | User: ${user.name} | responnded with Client is not Autherized `
+      `${ip}: API /api/v1/user/add | User: ${user.name} | responnded with User is not Autherized `
     );
     return res.status(401).send({ message: "User is not Autherized" });
   }
 
   try {
-    const existingUser = await Client.findOne({ email: data.email });
+    const existingUser = await User.findOne({ email: data.email });
     if (existingUser) {
       logger.error(
-        `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with Client already registered! for email: ${data.email}`
+        `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with User already registered! for email: ${data.email}`
       );
       return res.status(409).json({ message: "User already registered!" });
+    }
+
+    const existingUser_adhar = await User.findOne({
+      adhar_card: data.adhar_card,
+    });
+    if (existingUser_adhar) {
+      logger.error(
+        `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with User already registered! for ADHAR: ${data.adhar_card}`
+      );
+      return res
+        .status(412)
+        .json({ message: "User with same ADHAR already registered!" });
     }
 
     const existingClient = await Client.findOne({ email: data.email });
@@ -71,10 +83,12 @@ const createClient = async (req, res) => {
       return res.status(409).json({ message: "Client already registered!" });
     }
 
+    const salt = await bcrypt.genSalt(10);
+    const securedPass = await bcrypt.hash(data.password, salt);
     const newUser = await User.create({
       name: data.name,
       email: data.email,
-      password: data.password,
+      password: securedPass,
       whatsapp_no: data.whatsapp_no,
       city: data.city,
       adhar_card: data.adhar_card,
@@ -143,12 +157,13 @@ const updateCreatedClient = async (req, res) => {
   }
 
   try {
+    const salt = await bcrypt.genSalt(10);
+    const securedPass = await bcrypt.hash(data.password, salt);
     const newUser = await User.findOneAndUpdate(
       { _id: data.user_id },
       {
         name: data.name,
-
-        password: data.password,
+        password: securedPass,
         whatsapp_no: data.whatsapp_no,
         city: data.city,
         address: data.address,
