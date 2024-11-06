@@ -118,6 +118,7 @@ router.put(
   validateToken,
   [body("name", "Enter a valid name").notEmpty()],
   [body("present", "Enter a valid present").notEmpty()],
+  [body("totalWorkingDays")],
   [body("remark")],
   editAttendanceData
 );

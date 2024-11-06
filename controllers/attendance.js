@@ -282,6 +282,7 @@ const editAttendanceData = async (req, res) => {
         {
           name: data.name,
           present: data.present,
+          totalWorkingDays: data.totalWorkingDays,
           remark: data.remark,
         }
       );
