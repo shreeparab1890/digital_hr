@@ -166,6 +166,7 @@ const createEmployee = async (req, res) => {
       epf: data.epf,
       esic: data.esic,
       lwf: data.lwf || false,
+      esi: data.esi || false,
       e_epf: data.e_epf,
       e_esic: data.e_esic,
     });
@@ -402,6 +403,8 @@ const updateCreatedEmployee = async (req, res) => {
         country: data.country,
         state: data.state,
         pin_code: data.pin_code,
+        esi: data.esi,
+        lwf: data.lwf,
       },
       {
         new: true,
@@ -718,7 +721,7 @@ const updateEmployee = async (req, res) => {
             food_allow: data.food_allow,
             conveyance: data.conveyance,
             epf: data.epf,
-            esic: data.esic,
+            esi: data.esi,
             lwf: data.lwf,
             e_epf: data.e_epf,
             e_esic: data.e_esic,

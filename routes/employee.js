@@ -34,9 +34,7 @@ router.post(
     body("client_user_id", "Enter a valid client user id").notEmpty(),
     body("client_id"),
     body("name", "Enter a valid name").isLength({ min: 3 }),
-    body("fatherHusband_name", "Enter a valid fatherHusband_name").isLength({
-      min: 3,
-    }),
+    body("fatherHusband_name", "Enter a valid fatherHusband_name").notEmpty(),
     body("email", "Enter a Valid Email").isEmail(),
     body("whatsapp_no", "Enter a Valid Whatsapp Number").notEmpty().isNumeric(),
     body("password", "Password must have atlest 5 character").notEmpty(),
@@ -69,6 +67,7 @@ router.post(
     body("epf", "Enter a Valid epf"),
     body("esic", "Enter a Valid esic"),
     body("lwf"),
+    body("esi"),
     body("e_epf", "Enter a Valid e_epf"),
     body("e_esic", "Enter a Valid e_esic"),
   ],
@@ -101,9 +100,7 @@ router.put(
 
   [
     body("name", "Enter a valid name").isLength({ min: 3 }),
-    body("fatherHusband_name", "Enter a valid fatherHusband_name").isLength({
-      min: 3,
-    }),
+    body("fatherHusband_name", "Enter a valid fatherHusband_name").notEmpty(),
     body("email", "Enter a Valid Email").isEmail(),
     body("whatsapp_no", "Enter a Valid Whatsapp Number").notEmpty().isNumeric(),
     body("city", "Enter a Valid city"),
@@ -131,6 +128,7 @@ router.put(
     body("epf", "Enter a Valid epf"),
     body("esic", "Enter a Valid esic"),
     body("lwf"),
+    body("esi"),
     body("e_epf", "Enter a Valid e_epf"),
     body("e_esic", "Enter a Valid e_esic"),
   ],

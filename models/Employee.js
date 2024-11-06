@@ -126,6 +126,9 @@ const EmployeeSchema = new Schema({
   lwf: {
     type: Boolean,
   },
+  esi: {
+    type: Boolean,
+  },
   e_epf: {
     type: Number,
   },
