@@ -86,6 +86,7 @@ router.post(
     body("client_id"),
     body("team", "team required"),
     body("department", "department required"),
+    body("roleType", "roleType required"),
     body("employeeData", "Enter a valid employeeData"),
   ],
   validateToken,

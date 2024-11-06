@@ -108,7 +108,7 @@ const createEmployee = async (req, res) => {
     if (data.password) {
       securedPass = await bcrypt.hash(data.password, salt);
     } else {
-      securedPass = await bcrypt.hash("111111", salt);
+      securedPass = await bcrypt.hash("123456789", salt);
     }
 
     const newUser = await User.create({
@@ -214,7 +214,7 @@ const createEmployeesByExcel = async (req, res) => {
     return res.status(401).send({ message: "User is not Autherized" });
   }
 
-  const role = await Role.findOne({ name: "employee" });
+  //const role = await Role.findOne({ name: "employee" });
 
   let existingUsers = [];
   let newUsers = [];
@@ -258,9 +258,13 @@ const createEmployeesByExcel = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         let securedPass = "";
         if (data.employeeData[i].password) {
-          securedPass = await bcrypt.hash(data.password, salt);
+          //console.log(data.employeeData[i].password);
+          securedPass = await bcrypt.hash(
+            data.employeeData[i].password.toString(),
+            salt
+          );
         } else {
-          securedPass = await bcrypt.hash("111111", salt);
+          securedPass = await bcrypt.hash("123456789", salt);
         }
         let cunstructedEmpNo =
           existingClient.name.slice(0, 4) + "_" + `${lastCount + 1}`;
@@ -278,7 +282,7 @@ const createEmployeesByExcel = async (req, res) => {
           state: data.employeeData[i].state,
           pin_code: data.employeeData[i].pin_code,
           team: data.team,
-          roleType: role._id,
+          roleType: data.roleType,
           department: data.department,
         });
 
@@ -319,6 +323,7 @@ const createEmployeesByExcel = async (req, res) => {
           epf: data.employeeData[i].epf || "",
           esic: data.employeeData[i].esic || "",
           lwf: data.employeeData[i].lwf || false,
+          esi: data.employeeData[i].esi || false,
           e_epf: data.employeeData[i].e_epf || "",
           e_esic: data.employeeData[i].e_esic || "",
         });
