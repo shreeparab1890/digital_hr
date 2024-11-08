@@ -14,7 +14,7 @@ connectToMongo();
 const app = express();
 app.use(bodyParser.json({ limit: "30mb" })); // Set the limit as needed
 app.use(express.json());
-app.use(cors());
+//app.use(cors());
 app.use(
   cors({
     origin: "https://digitalhr.netlify.app",
