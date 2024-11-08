@@ -191,9 +191,7 @@ const getAllAttendanceByClient = async (req, res) => {
 //@access Private: Needs Login
 const getAttendanceById = async (req, res) => {
   const data = matchedData(req);
-
   const client_user_id = req.params.client_user_id;
-
   const month_year = req.params.month_year;
 
   const user = req.user;

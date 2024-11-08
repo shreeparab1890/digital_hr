@@ -41,11 +41,9 @@ const EmployeeSchema = new Schema({
   },
   whatsapp_no: {
     type: String,
-    required: true,
   },
   designation: {
     type: String,
-    required: true,
   },
   date_of_joining: {
     type: Date,
@@ -57,19 +55,15 @@ const EmployeeSchema = new Schema({
   },
   city: {
     type: String,
-    required: true,
   },
   state: {
     type: String,
-    required: true,
   },
   country: {
     type: String,
-    required: true,
   },
   pin_code: {
     type: String,
-    required: true,
   },
 
   adhar_card: {
