@@ -16,7 +16,6 @@ const AttendanceSchema = new Schema({
   }, */
   gross: {
     type: Number,
-    required: true,
   },
   lwf: {
     type: Boolean,

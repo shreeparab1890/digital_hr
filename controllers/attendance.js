@@ -58,11 +58,10 @@ const addAttendance = async (req, res) => {
           email: employeeData[i].email,
           name: employeeData[i].name,
           present: employeeData[i].present,
-          gross: employeeData[i].gross,
           totalWorkingDays: data.totalWorkingDays,
           month: data.month,
           year: data.year,
-          remark: data.remark || "NA",
+          remark: employeeData[i].remark || "NA",
         });
 
         logger.info(

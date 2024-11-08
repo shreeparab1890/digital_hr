@@ -82,13 +82,13 @@ const EmployeeSchema = new Schema({
     required: true,
   },
   uan_no: {
-    type: Number,
+    type: String,
   },
   pf_no: {
-    type: Number,
+    type: String,
   },
   esic_no: {
-    type: Number,
+    type: String,
   },
   bank_name: {
     type: String,

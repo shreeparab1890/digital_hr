@@ -34,7 +34,6 @@ router.post(
   [body("totalWorkingDays", "Enter a valid totalWorkingDays").notEmpty()],
   [body("month", "Enter a valid month").notEmpty()],
   [body("year", "Enter a valid year").notEmpty()],
-  [body("remark")],
 
   addAttendance
 );
