@@ -59,23 +59,23 @@ const createEmployee = async (req, res) => {
   }
 
   try {
-    const existingUser = await User.findOne({ adhar_card: data.adhar_card });
+    /* const existingUser = await User.findOne({ adhar_card: data.adhar_card });
     if (existingUser) {
       logger.error(
         `${ip}: API /api/v1/employee/add | User: ${user.name} | Responded with Employee already registered! for email: ${data.email}`
       );
       return res.status(409).json({ message: "User already registered!" });
-    }
+    } */
 
-    var existingEmployee = await Employee.findOne({ email: data.email });
+    /* var existingEmployee = await Employee.findOne({ email: data.email });
     if (existingEmployee) {
       logger.error(
         `${ip}: API /api/v1/employee/add | User: ${user.name} | Responded with Employee already registered! for user: ${data.email}`
       );
       return res.status(409).json({ message: "Employee already registered!" });
-    }
+    } */
 
-    var existingEmployee = await Employee.findOne({
+    /* var existingEmployee = await Employee.findOne({
       adhar_card: data.adhar_card,
     });
     if (existingEmployee) {
@@ -83,10 +83,10 @@ const createEmployee = async (req, res) => {
         `${ip}: API /api/v1/employee/add | User: ${user.name} | Responded with Employee already registered! for user: ${data.email}`
       );
       return res.status(409).json({ message: "Employee already registered!" });
-    }
+    } */
 
     const existingClient = await Client.findOne({
-      user_id: data.client_user_id,
+      _id: data.client_user_id,
     });
 
     let lastCount = 0;
@@ -100,8 +100,8 @@ const createEmployee = async (req, res) => {
       console.log("lastCount", lastCount);
       console.log("existingClient", existingClient.name.slice(0, 4));
     }
-    let cunstructedEmpNo =
-      existingClient.name.slice(0, 4) + "_" + `${lastCount + 1}`;
+    let parts = existingClient.name.split(" ");
+    let cunstructedEmpNo = parts[0] + `${lastCount + 1}`;
 
     const salt = await bcrypt.genSalt(10);
     let securedPass = "";
@@ -111,7 +111,7 @@ const createEmployee = async (req, res) => {
       securedPass = await bcrypt.hash("123456789", salt);
     }
 
-    const newUser = await User.create({
+    /* const newUser = await User.create({
       name: data.name,
       email: data.email,
       password: securedPass,
@@ -125,14 +125,16 @@ const createEmployee = async (req, res) => {
       team: data.team,
       roleType: data.roleType,
       department: data.department,
-    });
+    }); */
 
     const newEmployee = await Employee.create({
-      user_id: newUser._id,
+      user_id: user._id,
       client_id: existingClient._id || data.client_id,
       client_user_id: data.client_user_id,
       emp_no: cunstructedEmpNo,
+      username: cunstructedEmpNo,
       last_emp_no: lastCount + 1,
+      password: securedPass,
 
       name: data.name,
       fatherHusband_name: data.fatherHusband_name,
@@ -174,9 +176,9 @@ const createEmployee = async (req, res) => {
     console.log("newEmployee", newEmployee);
 
     logger.info(
-      `${ip}: API /api/v1/employee/add | User: ${newUser.name} | Responded with Success`
+      `${ip}: API /api/v1/employee/add | User: ${user.name} | Responded with Success`
     );
-    return res.status(201).json(newUser);
+    return res.status(201).json(newEmployee);
   } catch (err) {
     logger.error(
       `${ip}: API /api/v1/employee/add | User: ${
@@ -192,6 +194,7 @@ const createEmployee = async (req, res) => {
 //@route POST /api/v1/employee/add
 //@access Private: Needs Login
 const createEmployeesByExcel = async (req, res) => {
+  console.log("createEmployeesByExcel");
   const errors = validationResult(req);
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   const user = req.user;
@@ -222,8 +225,9 @@ const createEmployeesByExcel = async (req, res) => {
   let lastCount = 0;
 
   const existingClient = await Client.findOne({
-    user_id: data.client_user_id,
+    _id: data.client_user_id,
   });
+  console.log("existingClient: ", existingClient);
 
   if (existingClient) {
     const latestEmployee = await Employee.findOne({
@@ -232,7 +236,7 @@ const createEmployeesByExcel = async (req, res) => {
 
     lastCount = latestEmployee ? latestEmployee.last_emp_no : 0;
     console.log("lastCount", lastCount);
-    console.log("existingClient", existingClient.name.slice(0, 4));
+    console.log("existingClient", existingClient.name);
   }
 
   for (let i in data.employeeData) {
@@ -252,7 +256,7 @@ const createEmployeesByExcel = async (req, res) => {
     } else {
       try {
         const existingClient = await Client.findOne({
-          user_id: data.client_user_id,
+          _id: data.client_user_id,
         });
 
         const salt = await bcrypt.genSalt(10);
@@ -266,11 +270,11 @@ const createEmployeesByExcel = async (req, res) => {
         } else {
           securedPass = await bcrypt.hash("123456789", salt);
         }
-        let cunstructedEmpNo =
-          existingClient.name.slice(0, 4) + "_" + `${lastCount + 1}`;
+        let parts = existingClient.name.split(" ");
+        let cunstructedEmpNo = parts[0] + `${lastCount + 1}`;
         lastCount = lastCount + 1;
 
-        const newUser = await User.create({
+        /* const newUser = await User.create({
           name: data.employeeData[i].name,
           email: data.employeeData[i].email,
           password: securedPass,
@@ -284,13 +288,15 @@ const createEmployeesByExcel = async (req, res) => {
           team: data.team,
           roleType: data.roleType,
           department: data.department,
-        });
+        }); */
 
         const newEmployee = await Employee.create({
-          user_id: newUser._id,
+          user_id: user._id,
           client_id: existingClient._id || data.client_id,
           client_user_id: data.client_user_id,
           emp_no: cunstructedEmpNo,
+          username: cunstructedEmpNo,
+          password: securedPass,
           last_emp_no: lastCount,
           name: data.employeeData[i].name,
 
@@ -331,9 +337,9 @@ const createEmployeesByExcel = async (req, res) => {
         console.log("newEmployee", newEmployee);
 
         logger.info(
-          `${ip}: API /api/v1/employee/add | User: ${newUser.name} | Responded with Success`
+          `${ip}: API /api/v1/employee/add | User: ${user.name} | Responded with Success`
         );
-        newUsers.push(newEmployee);
+        //newUsers.push(newEmployee);
       } catch (err) {
         logger.error(
           `${ip}: API /api/v1/employee/add | User: ${
@@ -510,7 +516,7 @@ const getClientEmployees = async (req, res) => {
   const user = req.user;
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   const client_id = req.params.client_id;
-  console.log("client_id", client_id);
+  //console.log("client_id", client_id);
 
   try {
     if (user) {
@@ -642,16 +648,18 @@ const getEmployeeByEmail = async (req, res) => {
 
   try {
     if (loggedin_user) {
-      let employee = await Employee.findOne({
+      console.log(email);
+      let emp = await Employee.findOne({
         email,
       });
+      console.log(emp);
 
-      if (employee) {
+      if (emp) {
         logger.info(
           `${ip}: API /api/v1/employee/getbyemail/:${email} | User: ${loggedin_user.name} | responnded with Success `
         );
         return await res.status(200).json({
-          data: employee,
+          data: emp,
           message: "Employee retrived successfully",
         });
       } else {
@@ -852,7 +860,6 @@ const AppDisEmployee = async (req, res) => {
         if (oldUser.approved) {
           const updatedEmployee = {
             approved: false,
-            active: false,
           };
           const updatedUser = {
             approved: false,
@@ -866,13 +873,13 @@ const AppDisEmployee = async (req, res) => {
             }
           );
 
-          const UserRes = await User.findOneAndUpdate(
+          /* const UserRes = await User.findOneAndUpdate(
             { _id: id },
             updatedUser,
             {
               new: true,
             }
-          );
+          ); */
 
           logger.info(
             `${ip}: API /api/v1/employee/app_dis/:${id} | User: ${loggedin_user.name} | responnded with Success `
@@ -935,7 +942,7 @@ const AppDisEmployee = async (req, res) => {
 };
 
 //@desc Change password of Client with id
-//@route PUT /api/v1/client/change/pass/:id
+//@route PUT /api/v1/employee/change/pass/:id
 //@access Private: Needs Login
 const changePass = async (req, res) => {
   const loggedin_user = req.user;
@@ -946,48 +953,45 @@ const changePass = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     logger.error(
-      `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Validation Error `
+      `${ip}: API /api/v1/employee/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Validation Error `
     );
     return res.status(400).json({ errors: errors.array() });
   }
 
   try {
     if (loggedin_user) {
-      const oldUser = await Client.findOne({ _id: id });
+      const oldemployee = await Employee.findOne({ _id: id });
       const salt = await bcrypt.genSalt(10);
       const securedPass = await bcrypt.hash(password, salt);
-      if (oldUser) {
+      if (oldemployee) {
         const updatedUser = {
           password: securedPass,
         };
-        const result = await Client.findByIdAndUpdate(id, updatedUser, {
+        const result = await Employee.findByIdAndUpdate(id, updatedUser, {
           new: true,
-        })
-          .populate("department")
-          .populate("roleType")
-          .populate("team");
+        });
         logger.info(
-          `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Success `
+          `${ip}: API /api/v1/employee/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Success `
         );
         return res.status(200).json({
           data: result,
-          message: "User Password Changed Successfully",
+          message: "Employee Password Changed Successfully",
         });
       } else {
         logger.info(
-          `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Client Not Found `
+          `${ip}: API /api/v1/employee/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Client Not Found `
         );
-        return res.status(200).json({ message: "User Not Found" });
+        return res.status(200).json({ message: "Employee Not Found" });
       }
     } else {
       logger.error(
-        `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Client is not Autherized `
+        `${ip}: API /api/v1/employee/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Client is not Autherized `
       );
       return res.status(401).send({ message: "User is not Autherized" });
     }
   } catch (error) {
     logger.error(
-      `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Error `
+      `${ip}: API /api/v1/employee/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Error `
     );
     return res
       .status(500)
@@ -1095,6 +1099,76 @@ const updateDocument = async (req, res) => {
   }
 };
 
+//@desc User Login with email and password
+//@route POST /api/v1/user/login/
+//@access PUBLIC
+const logIn = async (req, res) => {
+  const errors = validationResult(req);
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/employee/login responnded with Error `);
+    return res.status(400).json({ errors: errors.array() });
+  }
+  const data = matchedData(req);
+
+  //const email = data.email;
+  const username = data.username;
+  const password = data.password;
+
+  try {
+    const oldUser = await Employee.findOne({ username });
+
+    if (!oldUser) {
+      logger.error(
+        `${ip}: API /api/v1/employee/login responnded with User Not Found for the user: ${username}`
+      );
+      return res
+        .status(404)
+        .json({ message: "Employee Not Found, Please Signup" });
+    }
+
+    if (!oldUser.active) {
+      logger.error(
+        `${ip}: API /api/v1/employee/login responnded with User Deleted for the user: ${username}`
+      );
+      return res.status(404).json({ message: "User Deleted" });
+    }
+
+    if (!oldUser.approved) {
+      logger.error(
+        `${ip}: API /api/v1/employee/login responnded with user Disabled: ${username}`
+      );
+      return res.status(402).json({ status: 402, message: "User Disabled" });
+    }
+    const isPasswordCorrect = await bcrypt.compare(password, oldUser.password);
+
+    if (!isPasswordCorrect) {
+      logger.error(
+        `${ip}: API /api/v1/employee/login responnded with Incorrect Password for the user: ${username}`
+      );
+      return res
+        .status(401)
+        .json({ status: 401, message: "Incorrect Password" });
+    }
+
+    const token = jwt.sign({ user: oldUser }, secret, {
+      expiresIn: "48hr",
+    });
+    //console.log(token);
+    logger.info(
+      `${ip}: API /api/v1/employee/login responnded with Login Successfull for the user: ${username}`
+    );
+    return res
+      .status(200)
+      .json({ data: oldUser, token, message: "Login Successfull" });
+  } catch (error) {
+    logger.info(`${ip}: API /api/v1/employee/login responnded with error`);
+    console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
+  }
+};
+
 module.exports = {
   testEmployeeAPI,
   createEmployee,
@@ -1111,4 +1185,5 @@ module.exports = {
   AppDisEmployee,
   updateDocument,
   changePass,
+  logIn,
 };

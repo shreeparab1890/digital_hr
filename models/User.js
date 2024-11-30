@@ -6,6 +6,10 @@ const Role = require("../models/Role.js");
 const { Schema } = mongoose;
 
 const UserSchema = new Schema({
+  username: {
+    type: String,
+    required: true,
+  },
   name: {
     type: String,
     required: true,
@@ -13,7 +17,6 @@ const UserSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   whatsapp_no: {
     type: Number,

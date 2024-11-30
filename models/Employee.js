@@ -18,6 +18,14 @@ const EmployeeSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Client",
   },
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
+    required: true,
+  },
 
   emp_no: {
     type: String,
@@ -37,7 +45,6 @@ const EmployeeSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique: true,
   },
   whatsapp_no: {
     type: String,
@@ -69,7 +76,6 @@ const EmployeeSchema = new Schema({
   adhar_card: {
     type: Number,
     required: true,
-    unique: true,
   },
   gross: {
     type: Number,

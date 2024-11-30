@@ -16,6 +16,7 @@ const {
   AppDisEmployee,
   updateDocument,
   changePass,
+  logIn,
 } = require("../controllers/employee");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -34,6 +35,9 @@ router.post(
     body("client_user_id", "Enter a valid client user id").notEmpty(),
     body("client_id"),
     body("name", "Enter a valid name").isLength({ min: 3 }),
+    body("password", "Password must have atlest 5 character!").isLength({
+      min: 5,
+    }),
     body("fatherHusband_name", "Enter a valid fatherHusband_name").notEmpty(),
     body("email", "Enter a Valid Email").isEmail(),
     body("whatsapp_no", "Enter a Valid Whatsapp Number").notEmpty().isNumeric(),
@@ -189,5 +193,17 @@ router.put(
 //@route PUT /api/v1/employee/change/password/:id
 //@access Private: Needs Login
 router.put("/change/password/:id", validateToken, changePass);
+
+//@desc User Login with email and password
+//@route POST /api/v1/employee/login/
+//@access PUBLIC
+router.post(
+  "/login/",
+  [
+    body("username"),
+    body("password", "Password must have atlest 5 character").notEmpty(),
+  ],
+  logIn
+);
 
 module.exports = router;

@@ -5,6 +5,7 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const logger = require("../config/logger.js");
 const Client = require("../models/Client");
+const Employee = require("../models/Employee");
 
 const secret = process.env.ACCESS_TOKEN_SECERT;
 
@@ -376,13 +377,14 @@ const logIn = async (req, res) => {
 const getCurrent = async (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   try {
+    //console.log("GetCurrent");
     const user = await User.find({
       _id: req.user._id,
     })
       .populate("department")
       .populate("roleType")
       .populate("team");
-
+    //console.log(user);
     if (user.length > 0) {
       logger.info(
         `${ip}: API /api/v1/user/getCurrent/:${req.user._id}  responnded with Success `
@@ -390,6 +392,31 @@ const getCurrent = async (req, res) => {
       return await res.status(200).json({
         user: user[0],
       });
+    } else {
+      const client = await Client.find({
+        _id: req.user._id,
+      });
+      //console.log(client);
+      if (client.length > 0) {
+        logger.info(
+          `${ip}: API /api/v1/client/getCurrent/:${req.user._id}  responnded with Success `
+        );
+        return await res.status(200).json({
+          user: client[0],
+        });
+      } else {
+        const emp = await Employee.find({
+          _id: req.user._id,
+        });
+        if (emp.length > 0) {
+          logger.info(
+            `${ip}: API /api/v1/client/getCurrent/:${req.user._id}  responnded with Success `
+          );
+          return await res.status(200).json({
+            user: emp[0],
+          });
+        }
+      }
     }
   } catch (error) {
     console.log(error);

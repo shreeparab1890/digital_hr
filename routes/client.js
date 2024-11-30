@@ -15,6 +15,7 @@ const {
   AppDisClient,
   updateDocument,
   changePass,
+  logIn,
 } = require("../controllers/client");
 const validateToken = require("../middleware/validateTokenHandler");
 
@@ -30,26 +31,32 @@ router.post(
   "/add",
   validateToken,
   [
-    body("user_id"),
-    body("name", "Enter a Valid Name!").isLength({ min: 3 }),
-    body("email", "Enter a Valid Email!").isEmail(),
-    body("whatsapp_no", "Enter a Valid Whatsapp Number!")
-      .isLength({ min: 10 })
-      .isNumeric(),
+    body("username_prefix").notEmpty(),
     body("password", "Password must have atlest 5 character!").isLength({
       min: 5,
     }),
-    body("adhar_card", "Enter a valid Adhar Card!").isLength({ min: 12 }),
+    body("name", "Enter a Valid Name!").notEmpty(),
+    body("email"),
+    body("whatsapp_no"),
     body("city", "Enter a Valid City!"),
     body("state", "Enter a Valid State!"),
     body("country", "Enter a Valid Country!"),
     body("address", "Enter a Valid Address!"),
-    body("pin_code", "Enter a Valid Pincode!").isNumeric(),
-    body("roleType", "Select Valid Role!").notEmpty(),
-    body("team", "Select Valid Team!").notEmpty(),
-    body("department", "Select Valid Department!").notEmpty(),
+    body("pin_code", "Enter a Valid Pincode!"),
   ],
   createClient
+);
+
+//@desc User Login with email and password
+//@route POST /api/v1/client/login/
+//@access PUBLIC
+router.post(
+  "/login/",
+  [
+    body("username", "Enter a Username").notEmpty(),
+    body("password", "Password must have atlest 5 character").notEmpty(),
+  ],
+  logIn
 );
 
 //@desc Update Newly Created Client
@@ -86,6 +93,8 @@ router.put(
   [
     body("pan_card", "Enter a valid pan card").notEmpty(),
     body("adhar_card"),
+    body("pf_enable"),
+    body("esic_enable"),
     body("gst_no"),
     body("cin_no"),
     body("incorporation_type", "Enter a valid incorporation type").notEmpty(),
@@ -134,37 +143,31 @@ router.get("/get/:id", validateToken, getClient);
 router.put(
   "/update/:id",
   [
-    body("user_id", "Enter a valid user id").notEmpty(),
-    body("name", "Enter a valid name").isLength({ min: 3 }),
+    body("name", "Enter a valid name"),
+    body("username"),
+    body("pf_enable"),
+    body("esic_enable"),
 
-    body("whatsapp_no", "Enter a Valid Whatsapp Number").notEmpty().isNumeric(),
+    body("whatsapp_no", "Enter a Valid Whatsapp Number"),
 
-    body("pan_card", "Enter a valid PAN card number").notEmpty(),
-    body("adhar_card", "Enter a valid Aadhar card number").notEmpty(),
+    body("pan_card", "Enter a valid PAN card number"),
+    body("adhar_card", "Enter a valid Aadhar card number"),
     body("gst_no"),
     body("cin_no"),
-    body("industry_type", "Enter a valid industry type").notEmpty(),
-    body(
-      "employee_count_range",
-      "Enter a valid employee count range"
-    ).notEmpty(),
-    body("contact_person.name", "Enter a valid contact person name").notEmpty(),
-    body(
-      "contact_person.email",
-      "Enter a valid contact person email"
-    ).isEmail(),
+    body("industry_type", "Enter a valid industry type"),
+    body("employee_count_range", "Enter a valid employee count range"),
+    body("contact_person.name", "Enter a valid contact person name"),
+    body("contact_person.email", "Enter a valid contact person email"),
     body(
       "contact_person.contact_no",
       "Enter a valid contact person contact number"
-    )
-      .notEmpty()
-      .isNumeric(),
+    ),
     body(
       "contact_person.designation",
       "Enter a valid contact person designation"
-    ).notEmpty(),
-    body("incorporation_type", "Enter a valid incorporation type").notEmpty(),
-    body("user_id", "Select a valid Client id").notEmpty(),
+    ),
+    body("incorporation_type", "Enter a valid incorporation type"),
+    body("user_id", "Select a valid Client id"),
   ],
   validateToken,
   updateClient
@@ -200,5 +203,15 @@ router.put("/delete/:id", validateToken, deleteClient);
 //@route PUT /api/v1/client/app_dis/:id
 //@access Private: Needs Login
 router.put("/app_dis/:id", validateToken, AppDisClient);
+
+//@desc Change password of Client with id
+//@route PUT /api/v1/client/change/pass/:id
+//@access Private: Needs Login
+router.put(
+  "/change/pass/:id",
+  [body("password", "Enter a valid Password").isLength({ min: 3 })],
+  validateToken,
+  changePass
+);
 
 module.exports = router;

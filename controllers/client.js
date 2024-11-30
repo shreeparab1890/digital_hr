@@ -49,60 +49,23 @@ const createClient = async (req, res) => {
 
   if (!user) {
     logger.error(
-      `${ip}: API /api/v1/user/add | User: ${user.name} | responnded with User is not Autherized `
+      `${ip}: API /api/v1/client/add | User: ${user.name} | responnded with User is not Autherized `
     );
     return res.status(401).send({ message: "User is not Autherized" });
   }
 
   try {
-    const existingUser = await User.findOne({ email: data.email });
-    if (existingUser) {
-      logger.error(
-        `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with User already registered! for email: ${data.email}`
-      );
-      return res.status(409).json({ message: "User already registered!" });
-    }
-
-    const existingUser_adhar = await User.findOne({
-      adhar_card: data.adhar_card,
+    const allClients = await Client.find({
+      active: true,
     });
-    if (existingUser_adhar) {
-      logger.error(
-        `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with User already registered! for ADHAR: ${data.adhar_card}`
-      );
-      return res
-        .status(412)
-        .json({ message: "User with same ADHAR already registered!" });
-    }
-
-    const existingClient = await Client.findOne({ email: data.email });
-    if (existingClient) {
-      logger.error(
-        `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with Client already registered! for user: ${data.email}`
-      );
-      return res.status(409).json({ message: "Client already registered!" });
-    }
-
+    const nextCLientNumber = allClients.length + 1;
+    const userName = data.username_prefix + nextCLientNumber;
     const salt = await bcrypt.genSalt(10);
     const securedPass = await bcrypt.hash(data.password, salt);
-    const newUser = await User.create({
-      name: data.name,
-      email: data.email,
-      password: securedPass,
-      whatsapp_no: data.whatsapp_no,
-      city: data.city,
-      adhar_card: data.adhar_card,
-      address: data.address,
-      country: data.country,
-      state: data.state,
-      pin_code: data.pin_code,
-      team: data.team,
-      roleType: data.roleType,
-      department: data.department,
-    });
 
     const newClient = await Client.create({
-      user_id: newUser._id,
+      username: userName,
+      password: securedPass,
       name: data.name,
       email: data.email,
       whatsapp_no: data.whatsapp_no,
@@ -116,9 +79,9 @@ const createClient = async (req, res) => {
     console.log("newClient", newClient);
 
     logger.info(
-      `${ip}: API /api/v1/client/add | User: ${newUser.name} | Responded with Success`
+      `${ip}: API /api/v1/client/add | User: ${user.name} | Responded with Success`
     );
-    return res.status(201).json(newUser);
+    return res.status(201).json(newClient);
   } catch (err) {
     logger.error(
       `${ip}: API /api/v1/client/add | User: ${
@@ -127,6 +90,78 @@ const createClient = async (req, res) => {
     );
     console.log(err);
     return res.status(500).json({ error: "Error", message: err.message });
+  }
+};
+
+//@desc User Login with username and password
+//@route POST /api/v1/client/login/
+//@access PUBLIC
+const logIn = async (req, res) => {
+  const errors = validationResult(req);
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/client/login responnded with Error `);
+    return res.status(400).json({ errors: errors.array() });
+  }
+  const data = matchedData(req);
+
+  const username = data.username;
+  const password = data.password;
+
+  try {
+    const oldClient = await Client.findOne({ username });
+
+    if (!oldClient) {
+      logger.error(
+        `${ip}: API /api/v1/client/login responnded with Client Not Found for the username: ${username}`
+      );
+      return res
+        .status(404)
+        .json({ message: "Client Not Found, Please Signup" });
+    }
+
+    if (!oldClient.active) {
+      logger.error(
+        `${ip}: API /api/v1/client/login responnded with Client Deleted for the username: ${username}`
+      );
+      return res.status(404).json({ message: "Client Deleted" });
+    }
+
+    if (!oldClient.approved) {
+      logger.error(
+        `${ip}: API /api/v1/client/login responnded with client Disabled: ${username}`
+      );
+      return res.status(402).json({ status: 402, message: "Client Disabled" });
+    }
+    const isPasswordCorrect = await bcrypt.compare(
+      password,
+      oldClient.password
+    );
+
+    if (!isPasswordCorrect) {
+      logger.error(
+        `${ip}: API /api/v1/client/login responnded with Incorrect Password for the username: ${username}`
+      );
+      return res
+        .status(401)
+        .json({ status: 401, message: "Incorrect Password" });
+    }
+
+    const token = jwt.sign({ user: oldClient }, secret, {
+      expiresIn: "48hr",
+    });
+    //console.log(token);
+    logger.info(
+      `${ip}: API /api/v1/client/login responnded with Login Successfull for the username: ${username}`
+    );
+    return res
+      .status(200)
+      .json({ data: oldClient, token, message: "Login Successfull" });
+  } catch (error) {
+    logger.info(`${ip}: API /api/v1/client/login responnded with error`);
+    console.log(error);
+    return res.status(500).json({ message: "Something went wrong" });
   }
 };
 
@@ -239,8 +274,10 @@ const AddClientDetails = async (req, res) => {
 
   try {
     const client = await Client.findOneAndUpdate(
-      { user_id: id },
+      { _id: id },
       {
+        pf_enable: data.pf_enable,
+        esic_enable: data.esic_enable,
         pan_card: data.pan_card,
         adhar_card: data.adhar_card,
         gst_no: data.gst_no,
@@ -424,12 +461,15 @@ const updateClient = async (req, res) => {
 
   if (loggedin_user) {
     try {
-      const oldUser = await Client.findOne({ _id: id });
-      if (oldUser) {
+      const oldClient = await Client.findOne({ _id: id });
+      if (oldClient) {
         const result = await Client.findByIdAndUpdate(
           id,
           {
             name: data.name,
+            username: data.username,
+            pf_enable: data.pf_enable,
+            esic_enable: data.esic_enable,
             whatsapp_no: data.whatsapp_no,
             city: data.city,
             address: data.address,
@@ -455,19 +495,6 @@ const updateClient = async (req, res) => {
           }
         );
 
-        const user = await User.findOneAndUpdate(
-          { _id: data.user_id },
-          {
-            name: data.name,
-            whatsapp_no: data.whatsapp_no,
-            city: data.city,
-            address: data.address,
-            country: data.country,
-            state: data.state,
-            pin_code: data.pin_code,
-          }
-        );
-
         logger.info(
           `${ip}: API /api/v1/client/update/:${id} | User: ${loggedin_user.name} | responnded with Success `
         );
@@ -478,7 +505,7 @@ const updateClient = async (req, res) => {
         logger.info(
           `${ip}: API /api/v1/client/update/:${id} | User: ${loggedin_user.name} | responnded with Client Not Found `
         );
-        return res.status(200).json({ message: "User Not Found" });
+        return res.status(200).json({ message: "Client Not Found" });
       }
     } catch (error) {
       logger.error(
@@ -700,31 +727,28 @@ const changePass = async (req, res) => {
 
   try {
     if (loggedin_user) {
-      const oldUser = await Client.findOne({ _id: id });
+      const oldClient = await Client.findOne({ _id: id });
       const salt = await bcrypt.genSalt(10);
       const securedPass = await bcrypt.hash(password, salt);
-      if (oldUser) {
+      if (oldClient) {
         const updatedUser = {
           password: securedPass,
         };
         const result = await Client.findByIdAndUpdate(id, updatedUser, {
           new: true,
-        })
-          .populate("department")
-          .populate("roleType")
-          .populate("team");
+        });
         logger.info(
           `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Success `
         );
         return res.status(200).json({
           data: result,
-          message: "User Password Changed Successfully",
+          message: "Client Password Changed Successfully",
         });
       } else {
         logger.info(
           `${ip}: API /api/v1/client/change/pass/:${id} | User: ${loggedin_user.name} | responnded with Client Not Found `
         );
-        return res.status(200).json({ message: "User Not Found" });
+        return res.status(200).json({ message: "Client Not Found" });
       }
     } else {
       logger.error(
@@ -871,4 +895,5 @@ module.exports = {
   getCurrent,
   AppDisClient,
   changePass,
+  logIn,
 };

@@ -51,7 +51,38 @@ const AttendanceSchema = new Schema({
     type: Number,
     required: true,
   },
-
+  numberOfLOP: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  absentDaysLOP: {
+    type: String,
+  },
+  numberOfCL: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  absentDaysCL: {
+    type: String,
+  },
+  numberOfPL: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  absentDaysPL: {
+    type: String,
+  },
+  numberOfSL: {
+    type: Number,
+    required: true,
+    default: 0,
+  },
+  absentDaysSL: {
+    type: String,
+  },
   remark: {
     type: String,
     default: "NA",

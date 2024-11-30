@@ -25,6 +25,13 @@ const ClientSchema = new Schema({
   user_id: {
     type: Schema.Types.ObjectId,
     ref: User,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+  password: {
+    type: String,
     required: true,
   },
   name: {
@@ -33,33 +40,24 @@ const ClientSchema = new Schema({
   },
   email: {
     type: String,
-    required: true,
-    unique: true,
   },
   whatsapp_no: {
     type: String,
-    required: true,
   },
-
   address: {
     type: String,
-    required: true,
   },
   pin_code: {
     type: String,
-    required: true,
   },
   city: {
     type: String,
-    required: true,
   },
   state: {
     type: String,
-    required: true,
   },
   country: {
     type: String,
-    required: true,
   },
   pan_card: {
     type: String,
@@ -84,6 +82,14 @@ const ClientSchema = new Schema({
   },
   incorporation_type: {
     type: String,
+  },
+  pf_enable: {
+    type: Boolean,
+    default: true,
+  },
+  esic_enable: {
+    type: Boolean,
+    default: true,
   },
 
   /* /////////////Proofs//////////////// */

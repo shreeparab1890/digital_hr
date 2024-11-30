@@ -34,6 +34,14 @@ router.post(
   [body("totalWorkingDays", "Enter a valid totalWorkingDays").notEmpty()],
   [body("month", "Enter a valid month").notEmpty()],
   [body("year", "Enter a valid year").notEmpty()],
+  [body("absentDaysLOP")],
+  [body("absentDaysCL")],
+  [body("absentDaysPL")],
+  [body("absentDaysSL")],
+  [body("numberOfLOP")],
+  [body("numberOfCL")],
+  [body("numberOfPL")],
+  [body("numberOfSL")],
 
   addAttendance
 );
@@ -119,6 +127,15 @@ router.put(
   [body("present", "Enter a valid present").notEmpty()],
   [body("totalWorkingDays")],
   [body("remark")],
+  [body("numberOfLOP")],
+  [body("absentDaysLOP")],
+  [body("numberOfCL")],
+  [body("absentDaysCL")],
+  [body("numberOfSL")],
+  [body("absentDaysSL")],
+  [body("numberOfPL")],
+  [body("absentDaysPL")],
+
   editAttendanceData
 );
 

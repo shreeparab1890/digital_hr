@@ -35,7 +35,7 @@ const addAttendance = async (req, res) => {
   const employeeData = data.employeeData;
 
   console.log("Received data:", data);
-  console.log("req.params.id:", req.params.id);
+  //console.log("req.params.id:", req.params.id);
 
   // If validation errors exist, respond with 400
   if (!errors.isEmpty()) {
@@ -59,10 +59,20 @@ const addAttendance = async (req, res) => {
           name: employeeData[i].name,
           present: employeeData[i].present,
           totalWorkingDays: data.totalWorkingDays,
+          numberOfLOP: employeeData[i].numberOfLOP,
+          absentDaysLOP: employeeData[i].absentDaysLOP,
+          numberOfCL: employeeData[i].numberOfCL,
+          absentDaysCL: employeeData[i].absentDaysCL,
+          numberOfPL: employeeData[i].numberOfPL,
+          absentDaysPL: employeeData[i].absentDaysPL,
+          numberOfSL: employeeData[i].numberOfSL,
+          absentDaysSL: employeeData[i].absentDaysSL,
           month: data.month,
           year: data.year,
           remark: employeeData[i].remark || "NA",
         });
+
+        console.log(attendance);
 
         logger.info(
           `${ip}: API /api/v1/attendance/add/:id | User: ${user.name} | Attendance added successfully`
@@ -281,6 +291,14 @@ const editAttendanceData = async (req, res) => {
           present: data.present,
           totalWorkingDays: data.totalWorkingDays,
           remark: data.remark,
+          numberOfLOP: data.numberOfLOP,
+          absentDaysLOP: data.absentDaysLOP,
+          numberOfCL: data.numberOfCL,
+          absentDaysCL: data.absentDaysCL,
+          numberOfSL: data.numberOfSL,
+          absentDaysSL: data.absentDaysSL,
+          numberOfPL: data.numberOfPL,
+          absentDaysPL: data.absentDaysPL,
         }
       );
 
