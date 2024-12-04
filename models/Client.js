@@ -30,6 +30,10 @@ const ClientSchema = new Schema({
     type: String,
     required: true,
   },
+  client_code: {
+    type: String,
+    required: true,
+  },
   password: {
     type: String,
     required: true,

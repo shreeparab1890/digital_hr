@@ -60,10 +60,20 @@ const createClient = async (req, res) => {
     });
     const nextCLientNumber = allClients.length + 1;
     const userName = data.username_prefix + nextCLientNumber;
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    const formattedClientNo = nextCLientNumber.toString().padStart(3, "0");
+    const clientCode =
+      currentYear.toString() +
+      currentMonth.toString() +
+      formattedClientNo.toString();
+
     const salt = await bcrypt.genSalt(10);
     const securedPass = await bcrypt.hash(data.password, salt);
 
     const newClient = await Client.create({
+      client_code: clientCode,
       username: userName,
       password: securedPass,
       name: data.name,
@@ -770,8 +780,10 @@ const changePass = async (req, res) => {
 //@route PUT /api/v1/client/update/document/:id
 //@access Private: Needs Login
 const updateDocument = async (req, res) => {
+  console.log("In update doc");
   const loggedin_user = req.user;
   const { id } = req.params;
+  console.log("client ID: ", id);
 
   const data = matchedData(req);
   console.log("data: ", data, id);
@@ -788,14 +800,14 @@ const updateDocument = async (req, res) => {
 
   if (loggedin_user) {
     try {
-      const oldUser = await Client.findOne({ user_id: id });
+      const oldUser = await Client.findOne({ _id: id });
       console.log("oldUser: ", oldUser);
       if (oldUser) {
         let client = "";
 
         if (data.document_type == "adhar") {
           const res = await Client.findOneAndUpdate(
-            { user_id: id },
+            { _id: id },
             {
               adhar_proof_url: data.document_url,
               adhar_proof: true,
@@ -810,7 +822,7 @@ const updateDocument = async (req, res) => {
 
         if (data.document_type == "pan") {
           const res = await Client.findOneAndUpdate(
-            { user_id: id },
+            { _id: id },
             {
               pan_proof_url: data.document_url,
               pan_proof: true,
@@ -825,7 +837,7 @@ const updateDocument = async (req, res) => {
 
         if (data.document_type == "gst") {
           const res = await Client.findOneAndUpdate(
-            { user_id: id },
+            { _id: id },
             {
               gst_proof_url: data.document_url,
               gst_proof: true,
@@ -840,7 +852,7 @@ const updateDocument = async (req, res) => {
 
         if (data.document_type == "cin") {
           const res = await Client.findOneAndUpdate(
-            { user_id: id },
+            { _id: id },
             {
               cin_proof_url: data.document_url,
               cin_proof: true,
@@ -858,7 +870,7 @@ const updateDocument = async (req, res) => {
         );
         return res
           .status(200)
-          .json({ data: client, message: "User Updated Successfully" });
+          .json({ data: client, message: "Client Updated Successfully" });
       } else {
         logger.info(
           `${ip}: API /api/v1/client/update/:${id} | User: ${loggedin_user.name} | responnded with Client Not Found `

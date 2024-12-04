@@ -90,6 +90,8 @@ const createEmployee = async (req, res) => {
     });
 
     let lastCount = 0;
+    console.log("existingClient");
+    console.log(existingClient);
 
     if (existingClient) {
       const latestEmployee = await Employee.findOne({
@@ -102,6 +104,10 @@ const createEmployee = async (req, res) => {
     }
     let parts = existingClient.name.split(" ");
     let cunstructedEmpNo = parts[0] + `${lastCount + 1}`;
+
+    const formattedClientNo = (lastCount + 1).toString().padStart(3, "0");
+    let conEmpCode =
+      existingClient.client_code.toString() + formattedClientNo.toString();
 
     const salt = await bcrypt.genSalt(10);
     let securedPass = "";
@@ -131,7 +137,7 @@ const createEmployee = async (req, res) => {
       user_id: user._id,
       client_id: existingClient._id || data.client_id,
       client_user_id: data.client_user_id,
-      emp_no: cunstructedEmpNo,
+      emp_no: conEmpCode,
       username: cunstructedEmpNo,
       last_emp_no: lastCount + 1,
       password: securedPass,
@@ -800,11 +806,11 @@ const deleteEmployee = async (req, res) => {
       const updated = {
         active: false,
       };
-      const oldUser = await Employee.findOne({ user_id: id });
+      const oldUser = await Employee.findOne({ _id: id });
       if (oldUser) {
         console.log("oldUser: ", oldUser);
         const employeeRes = await Employee.findOneAndUpdate(
-          { user_id: id },
+          { _id: id },
           updated,
           {
             new: true,
