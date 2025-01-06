@@ -90,8 +90,6 @@ const createEmployee = async (req, res) => {
     });
 
     let lastCount = 0;
-    console.log("existingClient");
-    console.log(existingClient);
 
     if (existingClient) {
       const latestEmployee = await Employee.findOne({
@@ -200,12 +198,10 @@ const createEmployee = async (req, res) => {
 //@route POST /api/v1/employee/add
 //@access Private: Needs Login
 const createEmployeesByExcel = async (req, res) => {
-  console.log("createEmployeesByExcel");
   const errors = validationResult(req);
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
   const user = req.user;
   const data = matchedData(req);
-  console.log("data", data);
 
   if (!errors.isEmpty()) {
     logger.error(
@@ -223,8 +219,6 @@ const createEmployeesByExcel = async (req, res) => {
     return res.status(401).send({ message: "User is not Autherized" });
   }
 
-  //const role = await Role.findOne({ name: "employee" });
-
   let existingUsers = [];
   let newUsers = [];
   let Errors = [];
@@ -233,16 +227,12 @@ const createEmployeesByExcel = async (req, res) => {
   const existingClient = await Client.findOne({
     _id: data.client_user_id,
   });
-  console.log("existingClient: ", existingClient);
 
   if (existingClient) {
     const latestEmployee = await Employee.findOne({
       client_user_id: data.client_user_id,
     }).sort({ last_emp_no: -1 });
-
     lastCount = latestEmployee ? latestEmployee.last_emp_no : 0;
-    console.log("lastCount", lastCount);
-    console.log("existingClient", existingClient.name);
   }
 
   for (let i in data.employeeData) {
@@ -268,7 +258,6 @@ const createEmployeesByExcel = async (req, res) => {
         const salt = await bcrypt.genSalt(10);
         let securedPass = "";
         if (data.employeeData[i].password) {
-          //console.log(data.employeeData[i].password);
           securedPass = await bcrypt.hash(
             data.employeeData[i].password.toString(),
             salt
@@ -278,29 +267,18 @@ const createEmployeesByExcel = async (req, res) => {
         }
         let parts = existingClient.name.split(" ");
         let cunstructedEmpNo = parts[0] + `${lastCount + 1}`;
-        lastCount = lastCount + 1;
 
-        /* const newUser = await User.create({
-          name: data.employeeData[i].name,
-          email: data.employeeData[i].email,
-          password: securedPass,
-          whatsapp_no: data.employeeData[i].whatsapp_no,
-          adhar_card: data.employeeData[i].adhar_card,
-          city: data.employeeData[i].city,
-          address: data.employeeData[i].address,
-          country: data.employeeData[i].country,
-          state: data.employeeData[i].state,
-          pin_code: data.employeeData[i].pin_code,
-          team: data.team,
-          roleType: data.roleType,
-          department: data.department,
-        }); */
+        const formattedClientNo = (lastCount + 1).toString().padStart(3, "0");
+        let conEmpCode =
+          existingClient.client_code.toString() + formattedClientNo.toString();
+
+        lastCount = lastCount + 1;
 
         const newEmployee = await Employee.create({
           user_id: user._id,
           client_id: existingClient._id || data.client_id,
           client_user_id: data.client_user_id,
-          emp_no: cunstructedEmpNo,
+          emp_no: conEmpCode,
           username: cunstructedEmpNo,
           password: securedPass,
           last_emp_no: lastCount,
@@ -340,12 +318,9 @@ const createEmployeesByExcel = async (req, res) => {
           e_esic: data.employeeData[i].e_esic || "",
         });
 
-        console.log("newEmployee", newEmployee);
-
         logger.info(
           `${ip}: API /api/v1/employee/add | User: ${user.name} | Responded with Success`
         );
-        //newUsers.push(newEmployee);
       } catch (err) {
         logger.error(
           `${ip}: API /api/v1/employee/add | User: ${
@@ -357,7 +332,6 @@ const createEmployeesByExcel = async (req, res) => {
       }
     }
   }
-
   return res.status(201).json({ existingUsers, newUsers, Errors });
 };
 

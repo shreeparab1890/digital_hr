@@ -34,7 +34,7 @@ const createDepartment = async (req, res) => {
 
   if (!errors.isEmpty()) {
     logger.error(`${ip}: API /api/v1/department/add responnded with Error `);
-    return res.status(400).json({ errors: errors.array() });
+    return res.status(401).json({ errors: errors.array() });
   }
 
   if (user) {

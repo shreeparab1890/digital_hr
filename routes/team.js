@@ -21,7 +21,7 @@ router.get("/", validateToken, testTeamAPI);
 //@access Private: Needs Login
 router.post(
   "/add",
-  [body("name", "Enter a valid name").isLength({ min: 3 })],
+  [body("name", "Enter a valid name! Min length 3.").isLength({ min: 3 })],
   validateToken,
   createTeam
 );

@@ -21,7 +21,7 @@ router.get("/", validateToken, testRoleAPI);
 //@access Private: Needs Login
 router.post(
   "/add",
-  [body("name", "Enter a valid name").isLength({ min: 3 })],
+  [body("name", "Enter a valid name! Min length 3.").isLength({ min: 3 })],
   validateToken,
   createRole
 );
@@ -31,7 +31,7 @@ router.post(
 //@access Private:Needs Login
 router.put(
   "/update/:id",
-  [body("name", "Enter a valid name").isLength({ min: 3 })],
+  [body("name", "Enter a valid name! Min length 3.").isLength({ min: 3 })],
   validateToken,
   updateRole
 );

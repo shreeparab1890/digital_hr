@@ -103,6 +103,73 @@ const createClient = async (req, res) => {
   }
 };
 
+const uploadClient = async (req, res) => {
+  const errors = validationResult(req);
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+  const user = req.user;
+  const data = matchedData(req);
+  console.log("data", data);
+  console.log(data.clientData.length);
+
+  if (!user) {
+    logger.error(
+      `${ip}: API /api/v1/client/upload | User: ${user.name} | responnded with user is not Autherized `
+    );
+    return res.status(401).send({ message: "User is not Autherized" });
+  }
+  for (let i = 0; i < data.clientData.length; i++) {
+    const allClients = await Client.find({
+      active: true,
+    });
+    const nextCLientNumber = allClients.length + 1;
+    const userName = data.clientData[i].username_prefix + nextCLientNumber;
+
+    const currentYear = new Date().getFullYear();
+    const currentMonth = new Date().getMonth() + 1;
+    const formattedClientNo = nextCLientNumber.toString().padStart(3, "0");
+    const clientCode =
+      currentYear.toString() +
+      currentMonth.toString() +
+      formattedClientNo.toString();
+
+    const salt = await bcrypt.genSalt(10);
+    const securedPass = await bcrypt.hash(
+      String(data.clientData[i].password),
+      salt
+    );
+
+    const newClient = await Client.create({
+      client_code: clientCode,
+      username: userName,
+      password: securedPass,
+      name: data.clientData[i].name,
+      email: data.clientData[i].email,
+      whatsapp_no: data.clientData[i].whatsapp_no,
+      city: data.clientData[i].city,
+      address: data.clientData[i].address,
+      country: data.clientData[i].country,
+      state: data.clientData[i].state,
+      pin_code: data.clientData[i].pin_code,
+      pf_enable: data.clientData[i].pf_enable,
+      esic_enable: data.clientData[i].esic_enable,
+      pan_card: data.clientData[i].pan_card,
+      adhar_card: data.clientData[i].adhar_card,
+      gst_no: data.clientData[i].gst_no,
+      cin_no: data.clientData[i].cin_no,
+      industry_type: data.clientData[i].industry_type,
+      employee_count_range: data.clientData[i].employee_count_range,
+      incorporation_type: data.clientData[i].incorporation_type,
+      contact_person: {
+        name: data.clientData[i].contact_name,
+        email: data.clientData[i].contact_email,
+        contact_no: data.clientData[i].contact_number,
+        designation: data.clientData[i].contact_designation,
+      },
+    });
+  }
+  return res.status(201).json({ msg: "DONE" });
+};
+
 //@desc User Login with username and password
 //@route POST /api/v1/client/login/
 //@access PUBLIC
@@ -896,6 +963,7 @@ const updateDocument = async (req, res) => {
 module.exports = {
   testClientAPI,
   createClient,
+  uploadClient,
   updateCreatedClient,
   AddClientDetails,
   getAllClients,

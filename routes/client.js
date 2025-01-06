@@ -4,6 +4,7 @@ const { body } = require("express-validator");
 const {
   testClientAPI,
   createClient,
+  uploadClient,
   updateCreatedClient,
   AddClientDetails,
   getAllClients,
@@ -46,6 +47,11 @@ router.post(
   ],
   createClient
 );
+
+//@desc Create New Clients excel upload
+//@route POST /api/v1/client/add/upload
+//@access Private: Needs Login
+router.post("/upload", validateToken, [body("clientData")], uploadClient);
 
 //@desc User Login with email and password
 //@route POST /api/v1/client/login/
@@ -168,6 +174,7 @@ router.put(
     ),
     body("incorporation_type", "Enter a valid incorporation type"),
     body("user_id", "Select a valid Client id"),
+    body("city"),
   ],
   validateToken,
   updateClient
